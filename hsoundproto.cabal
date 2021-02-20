@@ -10,7 +10,8 @@ build-type:          Simple
 extra-source-files:  CHANGELOG.md, README.md
 cabal-version:       >=1.10
 executable hsoundproto
-  main-is:             Player.hs
+  main-is: Player.hs
+  ghc-options: -main-is Main -threaded
   build-depends:       
     base >=4.12 && <4.13,
     sdl2 >= 2,
