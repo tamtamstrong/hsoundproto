@@ -31,6 +31,23 @@ audioCB samples format buffer =
                     (drop n samples')
     _ -> error "Unsupported audio format"
 
+playSound :: IO ()
+playSound = do 
+  samples <- newIORef sinSamples
+  (device,_) <-
+    openAudioDevice
+      OpenDeviceSpec {
+        SDL.openDeviceFreq      = Mandate 48000
+       ,SDL.openDeviceFormat    = Mandate Signed16BitNativeAudio
+       ,SDL.openDeviceChannels  = Mandate Mono
+       ,SDL.openDeviceSamples   = 4096 * 2
+       ,SDL.openDeviceCallback  = audioCB samples
+       ,SDL.openDeviceUsage     = ForPlayback
+       ,SDL.openDeviceName      = Nothing
+      }
+  setAudioDevicePlaybackState device Play
+  forever (threadDelay maxBound)
+
 main :: IO ()
 main = do 
   initializeAll
@@ -63,20 +80,4 @@ appLoop = waitEvent >>= go
         -> playSound 
       _ -> waitEvent >>= go
 
-playSound :: IO ()
-playSound = do 
-  samples <- newIORef sinSamples
-  (device,_) <-
-    openAudioDevice
-      OpenDeviceSpec {
-        SDL.openDeviceFreq      = Mandate 48000
-       ,SDL.openDeviceFormat    = Mandate Signed16BitNativeAudio
-       ,SDL.openDeviceChannels  = Mandate Mono
-       ,SDL.openDeviceSamples   = 4096 * 2
-       ,SDL.openDeviceCallback  = audioCB samples
-       ,SDL.openDeviceUsage     = ForPlayback
-       ,SDL.openDeviceName      = Nothing
-      }
-  setAudioDevicePlaybackState device Play
-  forever (threadDelay maxBound)
 
