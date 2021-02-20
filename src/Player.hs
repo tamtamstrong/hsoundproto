@@ -46,38 +46,28 @@ playSound = do
        ,SDL.openDeviceName      = Nothing
       }
   setAudioDevicePlaybackState device Play
-  forever (threadDelay maxBound)
+  threadDelay 1000000
+  closeAudioDevice device
 
 main :: IO ()
 main = do 
   initializeAll
-  window <- createWindow "Sound player" WindowConfig {
-      windowBorder          = True
-    , windowHighDPI         = False
-    , windowInputGrabbed    = False
-    , windowMode            = Windowed
-    , windowGraphicsContext = NoGraphicsContext
-    , windowPosition        = Wherever
-    , windowResizable       = False
-    , windowInitialSize     = V2 800 600
-    , windowVisible         = True
-  }
+  window <- createWindow "Sound player" defaultWindow
   renderer <- createRenderer window (-1) defaultRenderer
-  appLoop
+  appLoop renderer
 
-appLoop :: IO ()
-appLoop = waitEvent >>= go
-  where
-  go :: Event -> IO ()
-  go ev =
-    case eventPayload ev of
-      KeyboardEvent keyboardEvent
-        |  keyboardEventKeyMotion keyboardEvent == Pressed &&
-           keysymKeycode (keyboardEventKeysym keyboardEvent) == KeycodeQ
-        -> return ()
-        |  keyboardEventKeyMotion keyboardEvent == Pressed &&
-           keysymKeycode (keyboardEventKeysym keyboardEvent) == KeycodeA
-        -> playSound 
-      _ -> waitEvent >>= go
-
-
+appLoop :: Renderer -> IO ()
+appLoop renderer = do
+  events <- pollEvents
+  let eventIsQPress event =
+        case eventPayload event of
+          KeyboardEvent keyboardEvent ->
+            keyboardEventKeyMotion keyboardEvent == Pressed &&
+            keysymKeycode (keyboardEventKeysym keyboardEvent) == KeycodeQ
+          _ -> False
+      qPressed = any eventIsQPress events
+  rendererDrawColor renderer $= V4 0 0 255 255
+  clear renderer
+  present renderer
+  playSound
+  unless qPressed (appLoop renderer)
