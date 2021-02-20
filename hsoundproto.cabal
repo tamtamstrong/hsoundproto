@@ -1,0 +1,20 @@
+name:                hsoundproto
+version:             0.1.0.0
+synopsis:            Prototype sound output with SDL.
+homepage:            https://github.com/tamtamstrong/hsoundproto
+license:             BSD3
+license-file:        LICENSE
+author:              Adrian Gogolan
+maintainer:          gogolan.adrian@gmail.com
+build-type:          Simple
+extra-source-files:  CHANGELOG.md, README.md
+cabal-version:       >=1.10
+executable hsoundproto
+  main-is:             Player.hs
+  build-depends:       
+    base >=4.12 && <4.13,
+    sdl2 >= 2,
+    vector
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+

@@ -1,6 +1,6 @@
 {-# LANGUAGE GADTs #-}
 
-module Player where
+module Main where
 
 import Data.IORef
 import Control.Monad
