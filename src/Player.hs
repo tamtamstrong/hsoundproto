@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
@@ -31,20 +32,31 @@ audioCB samples format buffer =
     _ -> error "Unsupported audio format"
 
 main :: IO ()
-main =
-  do initializeAll
-     samples <- newIORef sinSamples
-     (device,_) <-
-       openAudioDevice
-         OpenDeviceSpec {SDL.openDeviceFreq =
-                           Mandate 48000
-                        ,SDL.openDeviceFormat =
-                           Mandate Signed16BitNativeAudio
-                        ,SDL.openDeviceChannels =
-                           Mandate Mono
-                        ,SDL.openDeviceSamples = 4096 * 2
-                        ,SDL.openDeviceCallback = audioCB samples
-                        ,SDL.openDeviceUsage = ForPlayback
-                        ,SDL.openDeviceName = Nothing}
-     setAudioDevicePlaybackState device Play
-     forever (threadDelay maxBound)
+main = do 
+  initializeAll
+  window <- createWindow "Sound player" WindowConfig {
+      windowBorder          = True
+    , windowHighDPI         = False
+    , windowInputGrabbed    = False
+    , windowMode            = Windowed
+    , windowGraphicsContext = NoGraphicsContext
+    , windowPosition        = Wherever
+    , windowResizable       = False
+    , windowInitialSize     = V2 800 600
+    , windowVisible         = True
+  }
+  renderer <- createRenderer window (-1) defaultRenderer
+  samples <- newIORef sinSamples
+  (device,_) <-
+    openAudioDevice
+      OpenDeviceSpec {
+        SDL.openDeviceFreq      = Mandate 48000
+       ,SDL.openDeviceFormat    = Mandate Signed16BitNativeAudio
+       ,SDL.openDeviceChannels  = Mandate Mono
+       ,SDL.openDeviceSamples   = 4096 * 2
+       ,SDL.openDeviceCallback  = audioCB samples
+       ,SDL.openDeviceUsage     = ForPlayback
+       ,SDL.openDeviceName      = Nothing
+  }
+  setAudioDevicePlaybackState device Play
+  forever (threadDelay maxBound)
