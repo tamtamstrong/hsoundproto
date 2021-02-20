@@ -46,6 +46,25 @@ main = do
     , windowVisible         = True
   }
   renderer <- createRenderer window (-1) defaultRenderer
+  appLoop
+
+appLoop :: IO ()
+appLoop = waitEvent >>= go
+  where
+  go :: Event -> IO ()
+  go ev =
+    case eventPayload ev of
+      KeyboardEvent keyboardEvent
+        |  keyboardEventKeyMotion keyboardEvent == Pressed &&
+           keysymKeycode (keyboardEventKeysym keyboardEvent) == KeycodeQ
+        -> return ()
+        |  keyboardEventKeyMotion keyboardEvent == Pressed &&
+           keysymKeycode (keyboardEventKeysym keyboardEvent) == KeycodeA
+        -> playSound 
+      _ -> waitEvent >>= go
+
+playSound :: IO ()
+playSound = do 
   samples <- newIORef sinSamples
   (device,_) <-
     openAudioDevice
@@ -57,6 +76,7 @@ main = do
        ,SDL.openDeviceCallback  = audioCB samples
        ,SDL.openDeviceUsage     = ForPlayback
        ,SDL.openDeviceName      = Nothing
-  }
+      }
   setAudioDevicePlaybackState device Play
   forever (threadDelay maxBound)
+
