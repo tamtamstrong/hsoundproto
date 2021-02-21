@@ -61,17 +61,11 @@ main = do
 
 appLoop :: Renderer -> IO ()
 appLoop renderer = do
-  events <- pollEvents
-  let eventIsQPress event =
-        case eventPayload event of
-          KeyboardEvent keyboardEvent ->
-            keyboardEventKeyMotion keyboardEvent == Pressed &&
-            keysymKeycode (keyboardEventKeysym keyboardEvent) == KeycodeQ
-          _ -> False
-      qPressed = any eventIsQPress events
+  events <- map eventPayload <$> pollEvents
+  let quit = QuitEvent `elem` events
   rendererDrawColor renderer $= V4 0 0 255 255
   clear renderer
   present renderer
   samples <- newIORef sinSamples
   playSound (Just samples)
-  unless qPressed (appLoop renderer)
+  unless quit (appLoop renderer)
