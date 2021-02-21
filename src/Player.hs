@@ -55,6 +55,8 @@ main = do
   window <- createWindow "Sound player" defaultWindow
   renderer <- createRenderer window (-1) defaultRenderer
   appLoop renderer
+  destroyWindow window
+  quit
 
 appLoop :: Renderer -> IO ()
 appLoop renderer = do
