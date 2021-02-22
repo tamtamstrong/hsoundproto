@@ -31,10 +31,11 @@ audioCB samples format buffer =
                     (drop n samples')
     _ -> error "Unsupported audio format"
 
-playSound :: Maybe (IORef [Int16]) -> IO ()
+playSound :: Maybe [Int16] -> IO ()
 playSound Nothing = do 
   return()
-playSound (Just samples) = do 
+playSound (Just sampleData) = do 
+  samples <- newIORef sampleData
   (device,_) <-
     openAudioDevice
       OpenDeviceSpec {
@@ -66,6 +67,5 @@ appLoop renderer = do
   rendererDrawColor renderer $= V4 0 0 255 255
   clear renderer
   present renderer
-  samples <- newIORef sinSamples
-  playSound (Just samples)
+  playSound (Just sinSamples)
   unless quit (appLoop renderer)
