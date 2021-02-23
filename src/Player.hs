@@ -51,6 +51,17 @@ playSound (Just sampleData) = do
   threadDelay 1000000
   closeAudioDevice device
 
+chooseSample :: [EventPayload] -> (Maybe [Int16])
+chooseSample [] = Nothing
+chooseSample events = if (hasKeyboardEvent events) then (Just sinSamples) else Nothing
+
+hasKeyboardEvent :: [EventPayload] -> Bool
+hasKeyboardEvent [] = False
+hasKeyboardEvent (x:xs) = 
+  case x of 
+    KeyboardEvent eventData -> True
+    _ -> (hasKeyboardEvent xs)
+
 main :: IO ()
 main = do 
   initializeAll
@@ -67,5 +78,5 @@ appLoop renderer = do
   rendererDrawColor renderer $= V4 0 0 255 255
   clear renderer
   present renderer
-  playSound (Just sinSamples)
+  playSound (chooseSample events)
   unless quit (appLoop renderer)
