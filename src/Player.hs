@@ -4,6 +4,7 @@
 module Main where
 
 import Data.IORef
+import Data.Maybe
 import Control.Monad
 import Control.Concurrent
 import Data.Int (Int16, Int32)
@@ -61,14 +62,11 @@ playSound (Just sampleData) = do
 
 chooseSample :: [EventPayload] -> (Maybe [Int16])
 chooseSample [] = Nothing
-chooseSample events = if (hasKeyboardEvent events) then (Just sinSamples) else (Just otherSamples)
+chooseSample events = head (map eventToSound events)
 
-hasKeyboardEvent :: [EventPayload] -> Bool
-hasKeyboardEvent [] = False
-hasKeyboardEvent (x:xs) = 
-  case x of 
-    KeyboardEvent eventData -> True
-    _ -> (hasKeyboardEvent xs)
+eventToSound :: EventPayload -> Maybe [Int16]
+eventToSound (KeyboardEvent eventData) = Just sinSamples
+eventToSound _ = Nothing
 
 main :: IO ()
 main = do 
