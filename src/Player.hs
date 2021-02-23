@@ -18,6 +18,14 @@ sinSamples =
          in round (fromIntegral (maxBound `div` 2 :: Int16) * sin (2 * pi * freq * t)))
       [0 :: Int32 ..]
 
+otherSamples :: [Int16]
+otherSamples =
+  map (\n ->
+         let t = fromIntegral n / 30000 :: Double
+             freq = 300
+         in round (fromIntegral (maxBound `div` 2 :: Int16) * sin (2 * pi * freq * t)))
+      [0 :: Int32 ..]
+
 audioCB :: IORef [Int16] -> AudioFormat sampleType -> V.IOVector sampleType -> IO ()
 audioCB samples format buffer =
   case format of
@@ -53,7 +61,7 @@ playSound (Just sampleData) = do
 
 chooseSample :: [EventPayload] -> (Maybe [Int16])
 chooseSample [] = Nothing
-chooseSample events = if (hasKeyboardEvent events) then (Just sinSamples) else Nothing
+chooseSample events = if (hasKeyboardEvent events) then (Just sinSamples) else (Just otherSamples)
 
 hasKeyboardEvent :: [EventPayload] -> Bool
 hasKeyboardEvent [] = False
