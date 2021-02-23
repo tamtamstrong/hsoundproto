@@ -65,7 +65,10 @@ chooseSample [] = Nothing
 chooseSample events = head (map eventToSound events)
 
 eventToSound :: EventPayload -> Maybe [Int16]
-eventToSound (KeyboardEvent eventData) = Just sinSamples
+eventToSound (KeyboardEvent e) 
+  | keyboardEventKeyMotion e == Pressed && keysymKeycode (keyboardEventKeysym e) == KeycodeA = Just sinSamples
+  | keyboardEventKeyMotion e == Pressed && keysymKeycode (keyboardEventKeysym e) == KeycodeZ = Just otherSamples
+  | otherwise = Nothing
 eventToSound _ = Nothing
 
 main :: IO ()
